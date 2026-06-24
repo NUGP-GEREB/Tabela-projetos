@@ -1,14 +1,13 @@
-const storageKey = "gereb-project-table-v1";
-const pageSize = 8;
+const storageKey = "gereb-project-table-v2";
 
 const initialProjects = [
   {
     id: "GEREB-008-FIO-20",
-    title: "Gestao e governanca no campo da ciencia, tecnologia e inovacao em saude",
+    title: "Gestão e governança no campo da ciência, tecnologia e inovação em saúde",
     unit: "ASSESSORIAS",
-    coordinator: "Jose Antonio Silvestre Fernandes Neto",
+    coordinator: "José Antônio Silvestre Fernandes Neto",
     instrument: "TED 50/2020",
-    funder: "Ministerio da Saude",
+    funder: "Ministério da Saúde",
     start: "2020-08-12",
     end: "2026-08-05",
     total: 31103328,
@@ -17,24 +16,24 @@ const initialProjects = [
   },
   {
     id: "GEREB-018-FIO-23",
-    title: "Aprimoramento das praticas institucionais no ambito do Ministerio da Saude",
+    title: "Aprimoramento das práticas institucionais no âmbito do Ministério da Saúde",
     unit: "ASSESSORIAS",
-    coordinator: "Jose Antonio Silvestre Fernandes Neto",
+    coordinator: "José Antônio Silvestre Fernandes Neto",
     instrument: "TED 15/2023",
-    funder: "Ministerio da Saude",
+    funder: "Ministério da Saúde",
     start: "2023-09-27",
     end: "2028-09-27",
     total: 183000000,
     realized: 96154394.37,
-    balance: -2120035.22,
+    balance: 1533162.48,
   },
   {
     id: "GEREB-036-FIO-23",
-    title: "Fortalecimento e apoio das acoes voltadas para a populacao em situacao de rua",
+    title: "Fortalecimento e apoio das ações voltadas para a população em situação de rua",
     unit: "ASSESSORIAS",
-    coordinator: "Jose Antonio Silvestre Fernandes Neto",
+    coordinator: "José Antônio Silvestre Fernandes Neto",
     instrument: "TED 06/2023",
-    funder: "Ministerio dos Direitos Humanos e da Cidadania",
+    funder: "Ministério dos Direitos Humanos e da Cidadania",
     start: "2023-12-21",
     end: "2026-06-30",
     total: 4625000,
@@ -43,10 +42,10 @@ const initialProjects = [
   },
   {
     id: "GEREB-005-FEX-20",
-    title: "Saude digital para o enfrentamento da Covid-19 nos territorios do Distrito Federal",
-    unit: "COLABORATORIO",
+    title: "Saúde digital para o enfrentamento da Covid-19 nos territórios do Distrito Federal",
+    unit: "COLABORATÓRIO",
     coordinator: "Wagner de Jesus Martins",
-    instrument: "Convenio PD&I 59/2020",
+    instrument: "Convênio PD&I 59/2020",
     funder: "FAP/DF",
     start: "2020-06-01",
     end: "2026-06-27",
@@ -56,35 +55,21 @@ const initialProjects = [
   },
   {
     id: "GEREB-060-FIO-24",
-    title: "Rua Sentinela: monitoramento e fortalecimento das politicas publicas",
+    title: "Rua Sentinela: monitoramento e fortalecimento das políticas públicas",
     unit: "ASSESSORIAS",
-    coordinator: "Jose Antonio Silvestre Fernandes Neto",
+    coordinator: "José Antônio Silvestre Fernandes Neto",
     instrument: "Emenda Parlamentar 43680013",
     funder: "Dep. Erika Hilton",
     start: "2024-12-09",
     end: "2026-12-09",
     total: 1000000,
     realized: 629273.54,
-    balance: -58104.18,
-  },
-  {
-    id: "GEREB-024-FIO-26",
-    title: "Redes agroecologicas de plantas medicinais",
-    unit: "COLABORATORIO",
-    coordinator: "Wagner de Jesus Martins",
-    instrument: "TED 970963/2024",
-    funder: "Ministerio do Desenvolvimento Agrario",
-    start: "2026-03-27",
-    end: "2027-09-27",
-    total: 2497000,
-    realized: 6093.98,
-    balance: 0,
+    balance: 528768.54,
   },
 ];
 
 const state = {
   projects: loadProjects(),
-  page: 1,
   editingIndex: null,
 };
 
@@ -106,18 +91,14 @@ const elements = {
   dialog: document.querySelector("#projectDialog"),
   dialogTitle: document.querySelector("#dialogTitle"),
   exportButton: document.querySelector("#exportButton"),
-  firstPage: document.querySelector("#firstPage"),
+  filteredCount: document.querySelector("#filteredCount"),
   form: document.querySelector("#projectForm"),
-  lastPage: document.querySelector("#lastPage"),
+  funderFilter: document.querySelector("#funderFilter"),
   newProjectButton: document.querySelector("#newProjectButton"),
-  nextPage: document.querySelector("#nextPage"),
-  pageInfo: document.querySelector("#pageInfo"),
-  previousPage: document.querySelector("#previousPage"),
   projectRows: document.querySelector("#projectRows"),
   realizedValue: document.querySelector("#realizedValue"),
   restoreButton: document.querySelector("#restoreButton"),
   searchInput: document.querySelector("#searchInput"),
-  statusFilter: document.querySelector("#statusFilter"),
   totalProjects: document.querySelector("#totalProjects"),
   totalValue: document.querySelector("#totalValue"),
   unitFilter: document.querySelector("#unitFilter"),
@@ -126,35 +107,29 @@ const elements = {
 function loadProjects() {
   try {
     const saved = localStorage.getItem(storageKey);
-    return saved ? JSON.parse(saved) : initialProjects;
+    return saved ? JSON.parse(saved) : cloneInitialProjects();
   } catch {
-    return initialProjects;
+    return cloneInitialProjects();
   }
+}
+
+function cloneInitialProjects() {
+  return initialProjects.map((project) => ({ ...project }));
 }
 
 function saveProjects() {
   localStorage.setItem(storageKey, JSON.stringify(state.projects));
 }
 
-function getStatus(project) {
-  const today = new Date();
-  const end = new Date(`${project.end}T12:00:00`);
-  const days = Math.ceil((end.getTime() - today.getTime()) / 86400000);
-
-  if (days < 0) return { label: "Encerrado", className: "status-ended" };
-  if (days <= 180) return { label: "A vencer", className: "status-warning" };
-  return { label: "Ativo", className: "status-active" };
-}
-
 function getFilteredProjects() {
   const query = elements.searchInput.value.trim().toLowerCase();
-  const status = elements.statusFilter.value;
   const unit = elements.unitFilter.value;
+  const funder = elements.funderFilter.value;
 
   return state.projects
     .map((project, index) => ({ project, index }))
     .filter(({ project }) => {
-      const text = [
+      const searchableText = [
         project.id,
         project.title,
         project.unit,
@@ -164,74 +139,82 @@ function getFilteredProjects() {
       ]
         .join(" ")
         .toLowerCase();
-      const projectStatus = getStatus(project).label;
 
       return (
-        (!query || text.includes(query)) &&
-        (status === "Todos" || projectStatus === status) &&
-        (unit === "Todos" || project.unit === unit)
+        (!query || searchableText.includes(query)) &&
+        (unit === "Todos" || project.unit === unit) &&
+        (funder === "Todos" || project.funder === funder)
       );
     });
 }
 
-function updateUnitFilter() {
-  const currentValue = elements.unitFilter.value;
-  const units = [...new Set(state.projects.map((project) => project.unit).filter(Boolean))].sort();
+function updateSelectFilter(select, values) {
+  const currentValue = select.value;
 
-  elements.unitFilter.innerHTML = '<option value="Todos">Todos</option>';
-  units.forEach((unit) => {
+  select.innerHTML = '<option value="Todos">Todos</option>';
+  values.forEach((value) => {
     const option = document.createElement("option");
-    option.value = unit;
-    option.textContent = unit;
-    elements.unitFilter.append(option);
+    option.value = value;
+    option.textContent = value;
+    select.append(option);
   });
 
-  elements.unitFilter.value = units.includes(currentValue) ? currentValue : "Todos";
+  select.value = values.includes(currentValue) ? currentValue : "Todos";
 }
 
-function renderSummary() {
-  const total = state.projects.reduce((sum, project) => sum + Number(project.total || 0), 0);
-  const realized = state.projects.reduce((sum, project) => sum + Number(project.realized || 0), 0);
-  const balance = state.projects.reduce((sum, project) => sum + Number(project.balance || 0), 0);
+function updateFilters() {
+  const units = [...new Set(state.projects.map((project) => project.unit).filter(Boolean))].sort();
+  const funders = [...new Set(state.projects.map((project) => project.funder).filter(Boolean))].sort();
 
-  elements.totalProjects.textContent = state.projects.length;
-  elements.totalValue.textContent = brl.format(total);
-  elements.realizedValue.textContent = brl.format(realized);
-  elements.balanceValue.textContent = brl.format(balance);
+  updateSelectFilter(elements.unitFilter, units);
+  updateSelectFilter(elements.funderFilter, funders);
 }
 
-function renderTable() {
-  const filtered = getFilteredProjects();
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  state.page = Math.min(state.page, totalPages);
-  const start = (state.page - 1) * pageSize;
-  const visible = filtered.slice(start, start + pageSize);
+function renderSummary(filteredProjects) {
+  const totals = filteredProjects.reduce(
+    (acc, { project }) => {
+      acc.total += Number(project.total || 0);
+      acc.realized += Number(project.realized || 0);
+      acc.balance += Number(project.balance || 0);
+      return acc;
+    },
+    { total: 0, realized: 0, balance: 0 },
+  );
 
+  elements.totalProjects.textContent = filteredProjects.length;
+  elements.totalValue.textContent = brl.format(totals.total);
+  elements.realizedValue.textContent = brl.format(totals.realized);
+  elements.balanceValue.textContent = brl.format(totals.balance);
+  elements.balanceValue.classList.toggle("balance-negative", totals.balance < 0);
+  elements.balanceValue.classList.toggle("balance-positive", totals.balance >= 0);
+}
+
+function renderTable(filteredProjects) {
   elements.projectRows.innerHTML = "";
 
-  if (!visible.length) {
+  if (!filteredProjects.length) {
     const row = document.createElement("tr");
-    row.innerHTML = '<td colspan="13">Nenhum projeto encontrado.</td>';
+    row.className = "empty-row";
+    row.innerHTML = '<td colspan="12">Nenhum projeto encontrado.</td>';
     elements.projectRows.append(row);
   }
 
-  visible.forEach(({ project, index }) => {
-    const status = getStatus(project);
+  filteredProjects.forEach(({ project, index }) => {
     const row = document.createElement("tr");
+    const balanceClass = Number(project.balance) < 0 ? "balance-negative" : "balance-positive";
 
     row.innerHTML = `
-      <td><strong>${escapeHtml(project.id)}</strong></td>
-      <td class="project-title">${escapeHtml(project.title)}</td>
-      <td>${escapeHtml(project.unit)}</td>
-      <td>${escapeHtml(project.coordinator)}</td>
-      <td>${escapeHtml(project.instrument)}</td>
-      <td>${escapeHtml(project.funder)}</td>
-      <td>${formatDate(project.start)}</td>
-      <td>${formatDate(project.end)}</td>
-      <td>${brl.format(project.total)}</td>
-      <td>${brl.format(project.realized)}</td>
-      <td>${brl.format(project.balance)}</td>
-      <td><span class="status ${status.className}">${status.label}</span></td>
+      <td><span class="project-code">${escapeHtml(project.id)}</span></td>
+      <td class="project-title"><span>${escapeHtml(project.title)}</span></td>
+      <td><span class="unit-badge">${escapeHtml(project.unit)}</span></td>
+      <td class="coordinator-cell"><span class="cell-clamp">${escapeHtml(project.coordinator)}</span></td>
+      <td class="instrument-cell"><span class="cell-clamp">${escapeHtml(project.instrument)}</span></td>
+      <td class="funder-cell"><span class="cell-clamp">${escapeHtml(project.funder)}</span></td>
+      <td class="date-cell">${formatDate(project.start)}</td>
+      <td class="date-cell">${formatDate(project.end)}</td>
+      <td class="money-cell">${brl.format(project.total)}</td>
+      <td class="money-cell">${brl.format(project.realized)}</td>
+      <td class="money-cell ${balanceClass}">${brl.format(project.balance)}</td>
       <td>
         <div class="actions">
           <button class="link-button" data-action="edit" data-index="${index}" type="button">Editar</button>
@@ -243,20 +226,15 @@ function renderTable() {
     elements.projectRows.append(row);
   });
 
-  elements.pageInfo.textContent = `${filtered.length ? start + 1 : 0}-${Math.min(
-    start + pageSize,
-    filtered.length,
-  )} de ${filtered.length}`;
-  elements.firstPage.disabled = state.page === 1;
-  elements.previousPage.disabled = state.page === 1;
-  elements.nextPage.disabled = state.page === totalPages;
-  elements.lastPage.disabled = state.page === totalPages;
+  elements.filteredCount.textContent = `${filteredProjects.length} ${filteredProjects.length === 1 ? "projeto encontrado" : "projetos encontrados"}`;
 }
 
 function render() {
-  updateUnitFilter();
-  renderSummary();
-  renderTable();
+  updateFilters();
+  const filteredProjects = getFilteredProjects();
+
+  renderSummary(filteredProjects);
+  renderTable(filteredProjects);
 }
 
 function formatDate(value) {
@@ -328,7 +306,6 @@ function handleSubmit(event) {
 
   if (state.editingIndex === null) {
     state.projects.push(project);
-    state.page = Math.ceil(state.projects.length / pageSize);
   } else {
     state.projects[state.editingIndex] = project;
   }
@@ -352,17 +329,16 @@ function deleteProject(index) {
 function exportCsv() {
   const headers = [
     "Projeto",
-    "Titulo",
-    "Coordenacao",
+    "Título",
+    "Coordenação",
     "Coordenador",
     "Instrumento",
     "Financiador",
-    "Inicio",
+    "Início",
     "Fim",
     "Total",
     "Realizado",
     "Saldo",
-    "Status",
   ];
   const rows = getFilteredProjects().map(({ project }) => [
     project.id,
@@ -376,7 +352,6 @@ function exportCsv() {
     project.total,
     project.realized,
     project.balance,
-    getStatus(project).label,
   ]);
   const csv = [headers, ...rows]
     .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","))
@@ -397,18 +372,9 @@ elements.newProjectButton.addEventListener("click", () => openDialog());
 elements.cancelDialog.addEventListener("click", closeDialog);
 elements.closeDialog.addEventListener("click", closeDialog);
 elements.form.addEventListener("submit", handleSubmit);
-elements.searchInput.addEventListener("input", () => {
-  state.page = 1;
-  renderTable();
-});
-elements.statusFilter.addEventListener("change", () => {
-  state.page = 1;
-  renderTable();
-});
-elements.unitFilter.addEventListener("change", () => {
-  state.page = 1;
-  renderTable();
-});
+elements.searchInput.addEventListener("input", render);
+elements.unitFilter.addEventListener("change", render);
+elements.funderFilter.addEventListener("change", render);
 elements.projectRows.addEventListener("click", (event) => {
   const button = event.target.closest("button");
   if (!button) return;
@@ -417,28 +383,11 @@ elements.projectRows.addEventListener("click", (event) => {
   if (button.dataset.action === "edit") openDialog(index);
   if (button.dataset.action === "delete") deleteProject(index);
 });
-elements.firstPage.addEventListener("click", () => {
-  state.page = 1;
-  renderTable();
-});
-elements.previousPage.addEventListener("click", () => {
-  state.page -= 1;
-  renderTable();
-});
-elements.nextPage.addEventListener("click", () => {
-  state.page += 1;
-  renderTable();
-});
-elements.lastPage.addEventListener("click", () => {
-  state.page = Math.ceil(getFilteredProjects().length / pageSize);
-  renderTable();
-});
 elements.restoreButton.addEventListener("click", () => {
-  const confirmed = window.confirm("Restaurar a base de exemplo e apagar edicoes locais?");
+  const confirmed = window.confirm("Restaurar a base original e apagar edições locais?");
   if (!confirmed) return;
 
-  state.projects = structuredClone(initialProjects);
-  state.page = 1;
+  state.projects = cloneInitialProjects();
   localStorage.removeItem(storageKey);
   render();
 });

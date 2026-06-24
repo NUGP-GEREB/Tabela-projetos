@@ -11,7 +11,7 @@ Mini-aplicacao standalone em HTML, CSS e JavaScript para preservar a ideia da ta
 - Adicao de novos projetos.
 - Edicao inline por modal.
 - Exclusao de registros.
-- Paginacao.
+- Rodape com contagem de projetos filtrados.
 - Persistencia no `localStorage`.
 - Restauracao da base de exemplo.
 - Exportacao CSV do recorte filtrado.

@@ -72,24 +72,11 @@
         </label>
       </section>
 
-      <section class="table-panel" aria-label="Tabela editavel de projetos">
+      <section class="table-panel" aria-label="Tabela editável de projetos">
         <div class="table-scroll">
           <table>
             <thead>
-              <tr>
-                <th>Projeto</th>
-                <th>Título</th>
-                <th>Coordenação</th>
-                <th>Coordenador</th>
-                <th>Instrumento</th>
-                <th>Financiador</th>
-                <th>Inicio</th>
-                <th>Fim</th>
-                <th>Total</th>
-                <th>Realizado</th>
-                <th>Saldo</th>
-                <th>Ações</th>
-              </tr>
+              <tr id="projectHeaderRow"></tr>
             </thead>
             <tbody id="projectRows"></tbody>
           </table>
@@ -119,6 +106,10 @@
             <span>Título</span>
             <input name="title" required />
           </label>
+          <label class="span-2">
+            <span>Objetivo geral</span>
+            <textarea name="objective" rows="3"></textarea>
+          </label>
           <label>
             <span>Coordenação</span>
             <input name="unit" required />
@@ -128,28 +119,60 @@
             <input name="coordinator" required />
           </label>
           <label>
-            <span>Instrumento</span>
-            <input name="instrument" required />
+            <span>Nº processo</span>
+            <input name="process" />
           </label>
           <label>
-            <span>Financiador</span>
+            <span>Tipo instrumento</span>
+            <input name="contractType" />
+          </label>
+          <label>
+            <span>Parceiro</span>
             <input name="funder" required />
           </label>
           <label>
-            <span>Inicio</span>
+            <span>Categoria TEDs</span>
+            <input name="tedCategory" />
+          </label>
+          <label>
+            <span>Nº instrumento</span>
+            <input name="instrument" required />
+          </label>
+          <label>
+            <span>Natureza</span>
+            <input name="nature" />
+          </label>
+          <label>
+            <span>Início</span>
             <input name="start" type="date" required />
           </label>
           <label>
             <span>Fim</span>
             <input name="end" type="date" required />
           </label>
+          <label class="span-2">
+            <span>Eixo mapa estratégico</span>
+            <textarea name="axis" rows="2"></textarea>
+          </label>
           <label>
             <span>Valor total</span>
             <input name="total" type="number" min="0" step="0.01" required />
           </label>
           <label>
-            <span>Realizado</span>
+            <span>Recurso liberado</span>
+            <input name="released" type="number" min="0" step="0.01" />
+          </label>
+          <label>
+            <span>Recurso a receber</span>
+            <input name="receivable" type="number" min="0" step="0.01" />
+          </label>
+          <label>
+            <span>Total realizado</span>
             <input name="realized" type="number" min="0" step="0.01" required />
+          </label>
+          <label>
+            <span>Total comprometido</span>
+            <input name="committed" type="number" min="0" step="0.01" />
           </label>
           <label>
             <span>Saldo atual</span>
@@ -163,6 +186,7 @@
       </form>
     </dialog>
 
+    <script src="./projects-data.js"></script>
     <script src="./script.js"></script>
   </body>
 </html>

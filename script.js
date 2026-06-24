@@ -1,71 +1,32 @@
-const storageKey = "gereb-project-table-v2";
+const storageKey = "gereb-project-table-v3";
+const initialProjects = Array.isArray(window.gerebProjectsData) ? window.gerebProjectsData : [];
 
-const initialProjects = [
-  {
-    id: "GEREB-008-FIO-20",
-    title: "Gestão e governança no campo da ciência, tecnologia e inovação em saúde",
-    unit: "ASSESSORIAS",
-    coordinator: "José Antônio Silvestre Fernandes Neto",
-    instrument: "TED 50/2020",
-    funder: "Ministério da Saúde",
-    start: "2020-08-12",
-    end: "2026-08-05",
-    total: 31103328,
-    realized: 31130699.28,
-    balance: -27746.83,
-  },
-  {
-    id: "GEREB-018-FIO-23",
-    title: "Aprimoramento das práticas institucionais no âmbito do Ministério da Saúde",
-    unit: "ASSESSORIAS",
-    coordinator: "José Antônio Silvestre Fernandes Neto",
-    instrument: "TED 15/2023",
-    funder: "Ministério da Saúde",
-    start: "2023-09-27",
-    end: "2028-09-27",
-    total: 183000000,
-    realized: 96154394.37,
-    balance: 1533162.48,
-  },
-  {
-    id: "GEREB-036-FIO-23",
-    title: "Fortalecimento e apoio das ações voltadas para a população em situação de rua",
-    unit: "ASSESSORIAS",
-    coordinator: "José Antônio Silvestre Fernandes Neto",
-    instrument: "TED 06/2023",
-    funder: "Ministério dos Direitos Humanos e da Cidadania",
-    start: "2023-12-21",
-    end: "2026-06-30",
-    total: 4625000,
-    realized: 4573802.85,
-    balance: 40277.95,
-  },
-  {
-    id: "GEREB-005-FEX-20",
-    title: "Saúde digital para o enfrentamento da Covid-19 nos territórios do Distrito Federal",
-    unit: "COLABORATÓRIO",
-    coordinator: "Wagner de Jesus Martins",
-    instrument: "Convênio PD&I 59/2020",
-    funder: "FAP/DF",
-    start: "2020-06-01",
-    end: "2026-06-27",
-    total: 10000000,
-    realized: 9863851.66,
-    balance: 2377797.9,
-  },
-  {
-    id: "GEREB-060-FIO-24",
-    title: "Rua Sentinela: monitoramento e fortalecimento das políticas públicas",
-    unit: "ASSESSORIAS",
-    coordinator: "José Antônio Silvestre Fernandes Neto",
-    instrument: "Emenda Parlamentar 43680013",
-    funder: "Dep. Erika Hilton",
-    start: "2024-12-09",
-    end: "2026-12-09",
-    total: 1000000,
-    realized: 629273.54,
-    balance: 528768.54,
-  },
+const tableColumns = [
+  { key: "item", label: "Item", type: "number", className: "item-cell" },
+  { key: "id", label: "Projeto", type: "project", className: "project-id-cell" },
+  { key: "title", label: "Título", type: "text", className: "project-title", clamp: 2 },
+  { key: "objective", label: "Objetivo geral", type: "text", className: "objective-cell", clamp: 3 },
+  { key: "coordinator", label: "Coordenador", type: "text", className: "coordinator-cell", clamp: 2 },
+  { key: "unit", label: "Coordenação", type: "badge", className: "unit-cell" },
+  { key: "process", label: "Nº processo", type: "text", className: "process-cell" },
+  { key: "contractType", label: "Tipo instrumento", type: "text", className: "instrument-cell", clamp: 2 },
+  { key: "funder", label: "Parceiro", type: "text", className: "funder-cell", clamp: 2 },
+  { key: "tedCategory", label: "Categoria TEDs", type: "text", className: "category-cell", clamp: 2 },
+  { key: "instrument", label: "Nº instrumento", type: "text", className: "instrument-number-cell" },
+  { key: "nature", label: "Natureza", type: "text", className: "nature-cell", clamp: 2 },
+  { key: "start", label: "Início", type: "date", className: "date-cell" },
+  { key: "end", label: "Fim", type: "date", className: "date-cell" },
+  { key: "axis", label: "Eixo mapa estratégico", type: "text", className: "axis-cell", clamp: 2 },
+  { key: "total", label: "Valor total", type: "money", className: "money-cell" },
+  { key: "released", label: "Recurso liberado", type: "money", className: "money-cell" },
+  { key: "receivable", label: "Recurso a receber", type: "money", className: "money-cell" },
+  { key: "realized", label: "Total realizado", type: "money", className: "money-cell" },
+  { key: "committed", label: "Total comprometido", type: "money", className: "money-cell" },
+  { key: "balance", label: "Saldo atual", type: "money", className: "money-cell", signed: true },
+  { key: "calculatedBalance", label: "Saldo calculado", type: "money", className: "money-cell", signed: true },
+  { key: "balanceDifference", label: "Dif. saldo", type: "money", className: "money-cell", signed: true },
+  { key: "realizedReleasedPct", label: "% realizado/liberado", type: "percent", className: "percent-cell" },
+  { key: "receivableTotalPct", label: "% receber/total", type: "percent", className: "percent-cell" },
 ];
 
 const state = {
@@ -76,6 +37,16 @@ const state = {
 const brl = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
+});
+
+const numberFormat = new Intl.NumberFormat("pt-BR", {
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 0,
+});
+
+const percentFormat = new Intl.NumberFormat("pt-BR", {
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 2,
 });
 
 const dateFormat = new Intl.DateTimeFormat("pt-BR", {
@@ -94,6 +65,7 @@ const elements = {
   filteredCount: document.querySelector("#filteredCount"),
   form: document.querySelector("#projectForm"),
   funderFilter: document.querySelector("#funderFilter"),
+  headerRow: document.querySelector("#projectHeaderRow"),
   newProjectButton: document.querySelector("#newProjectButton"),
   projectRows: document.querySelector("#projectRows"),
   realizedValue: document.querySelector("#realizedValue"),
@@ -121,24 +93,22 @@ function saveProjects() {
   localStorage.setItem(storageKey, JSON.stringify(state.projects));
 }
 
+function normalizeText(value) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 function getFilteredProjects() {
-  const query = elements.searchInput.value.trim().toLowerCase();
+  const query = normalizeText(elements.searchInput.value.trim());
   const unit = elements.unitFilter.value;
   const funder = elements.funderFilter.value;
 
   return state.projects
     .map((project, index) => ({ project, index }))
     .filter(({ project }) => {
-      const searchableText = [
-        project.id,
-        project.title,
-        project.unit,
-        project.coordinator,
-        project.instrument,
-        project.funder,
-      ]
-        .join(" ")
-        .toLowerCase();
+      const searchableText = normalizeText(Object.values(project).join(" "));
 
       return (
         (!query || searchableText.includes(query)) &&
@@ -163,11 +133,22 @@ function updateSelectFilter(select, values) {
 }
 
 function updateFilters() {
-  const units = [...new Set(state.projects.map((project) => project.unit).filter(Boolean))].sort();
-  const funders = [...new Set(state.projects.map((project) => project.funder).filter(Boolean))].sort();
+  const units = [...new Set(state.projects.map((project) => project.unit).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "pt-BR"),
+  );
+  const funders = [...new Set(state.projects.map((project) => project.funder).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "pt-BR"),
+  );
 
   updateSelectFilter(elements.unitFilter, units);
   updateSelectFilter(elements.funderFilter, funders);
+}
+
+function renderHeader() {
+  elements.headerRow.innerHTML = tableColumns
+    .map((column) => `<th>${escapeHtml(column.label)}</th>`)
+    .join("");
+  elements.headerRow.insertAdjacentHTML("beforeend", "<th>Ações</th>");
 }
 
 function renderSummary(filteredProjects) {
@@ -181,7 +162,7 @@ function renderSummary(filteredProjects) {
     { total: 0, realized: 0, balance: 0 },
   );
 
-  elements.totalProjects.textContent = filteredProjects.length;
+  elements.totalProjects.textContent = numberFormat.format(filteredProjects.length);
   elements.totalValue.textContent = brl.format(totals.total);
   elements.realizedValue.textContent = brl.format(totals.realized);
   elements.balanceValue.textContent = brl.format(totals.balance);
@@ -195,27 +176,17 @@ function renderTable(filteredProjects) {
   if (!filteredProjects.length) {
     const row = document.createElement("tr");
     row.className = "empty-row";
-    row.innerHTML = '<td colspan="12">Nenhum projeto encontrado.</td>';
+    row.innerHTML = `<td colspan="${tableColumns.length + 1}">Nenhum projeto encontrado.</td>`;
     elements.projectRows.append(row);
   }
 
   filteredProjects.forEach(({ project, index }) => {
     const row = document.createElement("tr");
-    const balanceClass = Number(project.balance) < 0 ? "balance-negative" : "balance-positive";
+    const cells = tableColumns.map((column) => renderCell(project, column)).join("");
 
     row.innerHTML = `
-      <td><span class="project-code">${escapeHtml(project.id)}</span></td>
-      <td class="project-title"><span>${escapeHtml(project.title)}</span></td>
-      <td><span class="unit-badge">${escapeHtml(project.unit)}</span></td>
-      <td class="coordinator-cell"><span class="cell-clamp">${escapeHtml(project.coordinator)}</span></td>
-      <td class="instrument-cell"><span class="cell-clamp">${escapeHtml(project.instrument)}</span></td>
-      <td class="funder-cell"><span class="cell-clamp">${escapeHtml(project.funder)}</span></td>
-      <td class="date-cell">${formatDate(project.start)}</td>
-      <td class="date-cell">${formatDate(project.end)}</td>
-      <td class="money-cell">${brl.format(project.total)}</td>
-      <td class="money-cell">${brl.format(project.realized)}</td>
-      <td class="money-cell ${balanceClass}">${brl.format(project.balance)}</td>
-      <td>
+      ${cells}
+      <td class="actions-cell">
         <div class="actions">
           <button class="link-button" data-action="edit" data-index="${index}" type="button">Editar</button>
           <button class="link-button" data-action="delete" data-index="${index}" type="button">Excluir</button>
@@ -226,7 +197,39 @@ function renderTable(filteredProjects) {
     elements.projectRows.append(row);
   });
 
-  elements.filteredCount.textContent = `${filteredProjects.length} ${filteredProjects.length === 1 ? "projeto encontrado" : "projetos encontrados"}`;
+  elements.filteredCount.textContent = `${numberFormat.format(filteredProjects.length)} ${
+    filteredProjects.length === 1 ? "projeto encontrado" : "projetos encontrados"
+  }`;
+}
+
+function renderCell(project, column) {
+  const value = project[column.key];
+  const classes = [column.className];
+
+  if (column.signed && Number(value) < 0) classes.push("balance-negative");
+  if (column.signed && Number(value) >= 0) classes.push("balance-positive");
+
+  if (column.type === "badge") {
+    return `<td class="${classes.join(" ")}"><span class="unit-badge">${escapeHtml(value || "-")}</span></td>`;
+  }
+
+  if (column.type === "project") {
+    return `<td class="${classes.join(" ")}"><span class="project-code">${escapeHtml(value || "-")}</span></td>`;
+  }
+
+  const displayValue = formatColumnValue(value, column.type);
+  const contentClass = column.clamp ? "cell-clamp" : "";
+
+  return `<td class="${classes.join(" ")}"><span class="${contentClass}">${escapeHtml(displayValue)}</span></td>`;
+}
+
+function formatColumnValue(value, type) {
+  if (value === null || value === undefined || value === "") return "-";
+  if (type === "date") return formatDate(value);
+  if (type === "money") return brl.format(Number(value || 0));
+  if (type === "percent") return `${percentFormat.format(Number(value || 0))}%`;
+  if (type === "number") return numberFormat.format(Number(value || 0));
+  return value;
 }
 
 function render() {
@@ -251,25 +254,43 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function getEmptyProject() {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return {
+    item: state.projects.length + 1,
+    id: "",
+    title: "",
+    objective: "",
+    coordinator: "",
+    unit: "",
+    process: "",
+    contractType: "",
+    funder: "",
+    tedCategory: "",
+    instrument: "",
+    nature: "",
+    start: today,
+    end: today,
+    axis: "",
+    total: 0,
+    released: 0,
+    receivable: 0,
+    realized: 0,
+    committed: 0,
+    balance: 0,
+    calculatedBalance: 0,
+    balanceDifference: 0,
+    realizedReleasedPct: 0,
+    receivableTotalPct: 0,
+  };
+}
+
 function openDialog(index = null) {
   state.editingIndex = index;
-  const project =
-    index === null
-      ? {
-          id: "",
-          title: "",
-          unit: "",
-          coordinator: "",
-          instrument: "",
-          funder: "",
-          start: new Date().toISOString().slice(0, 10),
-          end: new Date().toISOString().slice(0, 10),
-          total: 0,
-          realized: 0,
-          balance: 0,
-        }
-      : state.projects[index];
+  const project = index === null ? getEmptyProject() : state.projects[index];
 
+  elements.form.reset();
   elements.dialogTitle.textContent = index === null ? "Adicionar projeto" : `Editar ${project.id}`;
 
   Object.entries(project).forEach(([key, value]) => {
@@ -290,19 +311,32 @@ function handleSubmit(event) {
   event.preventDefault();
 
   const data = new FormData(elements.form);
+  const previousProject = state.editingIndex === null ? getEmptyProject() : state.projects[state.editingIndex];
   const project = {
-    id: data.get("id").trim(),
-    title: data.get("title").trim(),
-    unit: data.get("unit").trim(),
-    coordinator: data.get("coordinator").trim(),
-    instrument: data.get("instrument").trim(),
-    funder: data.get("funder").trim(),
+    ...previousProject,
+    id: getText(data, "id"),
+    title: getText(data, "title"),
+    objective: getText(data, "objective"),
+    unit: getText(data, "unit"),
+    coordinator: getText(data, "coordinator"),
+    process: getText(data, "process"),
+    contractType: getText(data, "contractType"),
+    funder: getText(data, "funder"),
+    tedCategory: getText(data, "tedCategory"),
+    instrument: getText(data, "instrument"),
+    nature: getText(data, "nature"),
     start: data.get("start"),
     end: data.get("end"),
-    total: Number(data.get("total")),
-    realized: Number(data.get("realized")),
-    balance: Number(data.get("balance")),
+    axis: getText(data, "axis"),
+    total: getNumber(data, "total"),
+    released: getNumber(data, "released"),
+    receivable: getNumber(data, "receivable"),
+    realized: getNumber(data, "realized"),
+    committed: getNumber(data, "committed"),
+    balance: getNumber(data, "balance"),
   };
+
+  updateCalculatedFields(project);
 
   if (state.editingIndex === null) {
     state.projects.push(project);
@@ -313,6 +347,26 @@ function handleSubmit(event) {
   saveProjects();
   closeDialog();
   render();
+}
+
+function getText(data, key) {
+  return String(data.get(key) ?? "").trim();
+}
+
+function getNumber(data, key) {
+  const value = data.get(key);
+  return value === "" || value === null ? 0 : Number(value);
+}
+
+function updateCalculatedFields(project) {
+  project.calculatedBalance = round2(project.released - project.realized - project.committed);
+  project.balanceDifference = round2(project.balance - project.calculatedBalance);
+  project.realizedReleasedPct = project.released ? round2((project.realized / project.released) * 100) : 0;
+  project.receivableTotalPct = project.total ? round2((project.receivable / project.total) * 100) : 0;
+}
+
+function round2(value) {
+  return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 }
 
 function deleteProject(index) {
@@ -327,36 +381,12 @@ function deleteProject(index) {
 }
 
 function exportCsv() {
-  const headers = [
-    "Projeto",
-    "Título",
-    "Coordenação",
-    "Coordenador",
-    "Instrumento",
-    "Financiador",
-    "Início",
-    "Fim",
-    "Total",
-    "Realizado",
-    "Saldo",
-  ];
-  const rows = getFilteredProjects().map(({ project }) => [
-    project.id,
-    project.title,
-    project.unit,
-    project.coordinator,
-    project.instrument,
-    project.funder,
-    project.start,
-    project.end,
-    project.total,
-    project.realized,
-    project.balance,
-  ]);
+  const headers = tableColumns.map((column) => column.label);
+  const rows = getFilteredProjects().map(({ project }) => tableColumns.map((column) => project[column.key] ?? ""));
   const csv = [headers, ...rows]
     .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","))
     .join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
 
@@ -393,4 +423,5 @@ elements.restoreButton.addEventListener("click", () => {
 });
 elements.exportButton.addEventListener("click", exportCsv);
 
+renderHeader();
 render();

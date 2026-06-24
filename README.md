@@ -4,16 +4,16 @@ Mini-aplicacao standalone em HTML, CSS e JavaScript para preservar a ideia da ta
 
 ## Funcionalidades
 
-- Listagem de projetos em tabela.
-- Busca por projeto, titulo, unidade, coordenador, instrumento e financiador.
-- Filtros por status e coordenacao.
+- Listagem dos projetos do Painel de Projetos GEREB em tabela.
+- Busca por projeto, titulo, objetivo, unidade, coordenador, instrumento e parceiro.
+- Filtros por coordenacao e parceiro.
 - Resumo automatico de quantidade, valor total, realizado e saldo.
 - Adicao de novos projetos.
 - Edicao inline por modal.
 - Exclusao de registros.
 - Rodape com contagem de projetos filtrados.
 - Persistencia no `localStorage`.
-- Restauracao da base de exemplo.
+- Restauracao da base original do painel.
 - Exportacao CSV do recorte filtrado.
 
 ## Como abrir
@@ -23,5 +23,6 @@ Abra `index.html` diretamente no navegador.
 ## Estrutura
 
 - `index.html`: estrutura da pagina.
+- `projects-data.js`: base gerada a partir do CSV do painel.
 - `styles.css`: estilos responsivos.
-- `script.js`: dados de exemplo, filtros, CRUD, paginacao e exportacao.
+- `script.js`: renderizacao da tabela, filtros, CRUD e exportacao.

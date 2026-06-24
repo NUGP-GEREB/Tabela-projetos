@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tabela de Projetos GEREB</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="page-header">
+        <div>
+          <span class="eyebrow">Base editavel</span>
+          <h1>Tabela de Projetos GEREB</h1>
+          <p>Consulta, edicao e manutencao rapida dos projetos que alimentam o painel.</p>
+        </div>
+        <div class="header-actions">
+          <button class="button button-secondary" id="restoreButton" type="button">Restaurar base</button>
+          <button class="button button-secondary" id="exportButton" type="button">Exportar CSV</button>
+          <button class="button" id="newProjectButton" type="button">Adicionar projeto</button>
+        </div>
+      </header>
+
+      <section class="summary-grid" aria-label="Resumo da base">
+        <article>
+          <span>Projetos</span>
+          <strong id="totalProjects">0</strong>
+        </article>
+        <article>
+          <span>Valor total</span>
+          <strong id="totalValue">R$ 0,00</strong>
+        </article>
+        <article>
+          <span>Realizado</span>
+          <strong id="realizedValue">R$ 0,00</strong>
+        </article>
+        <article>
+          <span>Saldo atual</span>
+          <strong id="balanceValue">R$ 0,00</strong>
+        </article>
+      </section>
+
+      <section class="toolbar" aria-label="Ferramentas da tabela">
+        <label class="search-field">
+          <span>Buscar</span>
+          <input id="searchInput" type="search" placeholder="Projeto, coordenador, instrumento, unidade..." />
+        </label>
+        <label>
+          <span>Status</span>
+          <select id="statusFilter">
+            <option value="Todos">Todos</option>
+            <option value="Ativo">Ativo</option>
+            <option value="A vencer">A vencer</option>
+            <option value="Encerrado">Encerrado</option>
+          </select>
+        </label>
+        <label>
+          <span>Unidade</span>
+          <select id="unitFilter">
+            <option value="Todos">Todos</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="table-panel" aria-label="Tabela editavel de projetos">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Projeto</th>
+                <th>Titulo</th>
+                <th>Coordenacao</th>
+                <th>Coordenador</th>
+                <th>Instrumento</th>
+                <th>Financiador</th>
+                <th>Inicio</th>
+                <th>Fim</th>
+                <th>Total</th>
+                <th>Realizado</th>
+                <th>Saldo</th>
+                <th>Status</th>
+                <th>Acoes</th>
+              </tr>
+            </thead>
+            <tbody id="projectRows"></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <button id="firstPage" type="button">Primeira</button>
+          <button id="previousPage" type="button">Anterior</button>
+          <span id="pageInfo">0-0 de 0</span>
+          <button id="nextPage" type="button">Proxima</button>
+          <button id="lastPage" type="button">Ultima</button>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="projectDialog">
+      <form method="dialog" class="dialog-card" id="projectForm">
+        <header>
+          <div>
+            <span class="eyebrow">Registro</span>
+            <h2 id="dialogTitle">Adicionar projeto</h2>
+          </div>
+          <button class="icon-button" id="closeDialog" type="button" aria-label="Fechar">x</button>
+        </header>
+        <div class="form-grid">
+          <label>
+            <span>Projeto ID</span>
+            <input name="id" required />
+          </label>
+          <label>
+            <span>Titulo</span>
+            <input name="title" required />
+          </label>
+          <label>
+            <span>Coordenacao</span>
+            <input name="unit" required />
+          </label>
+          <label>
+            <span>Coordenador</span>
+            <input name="coordinator" required />
+          </label>
+          <label>
+            <span>Instrumento</span>
+            <input name="instrument" required />
+          </label>
+          <label>
+            <span>Financiador</span>
+            <input name="funder" required />
+          </label>
+          <label>
+            <span>Inicio</span>
+            <input name="start" type="date" required />
+          </label>
+          <label>
+            <span>Fim</span>
+            <input name="end" type="date" required />
+          </label>
+          <label>
+            <span>Valor total</span>
+            <input name="total" type="number" min="0" step="0.01" required />
+          </label>
+          <label>
+            <span>Realizado</span>
+            <input name="realized" type="number" min="0" step="0.01" required />
+          </label>
+          <label>
+            <span>Saldo atual</span>
+            <input name="balance" type="number" step="0.01" required />
+          </label>
+        </div>
+        <footer>
+          <button class="button button-secondary" id="cancelDialog" type="button">Cancelar</button>
+          <button class="button" type="submit">Salvar</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
